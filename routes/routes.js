@@ -31,7 +31,6 @@ router.delete("/employee/delete/:id", employee.deleteEmployee);
 router.get("/employee/get/:id" , employee.getEmployeeId);
 // food
 router.get("/food", food.getFood);
-router.get("/food/image/:id", food.getImage);
 router.post("/food/create", food.addFood);
 router.post("/food/update/:id", food.updateFood);
 router.delete("/food/delete/:id", food.deleteFood);
