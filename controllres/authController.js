@@ -25,7 +25,7 @@ module.exports.loginUser = async (req, res) => {
                     }
                 )
                 user.token = token;
-                console.log('user========>', user)
+                // console.log('user========>', user)
                 res.status(200).json(JSON.stringify(user));
             }
             res.status(400).send('Invalid');

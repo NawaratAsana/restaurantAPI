@@ -14,7 +14,11 @@ const orderFood = require('../controllres/orderFoodController')
 const orderDrink = require('../controllres/orderDrinkController')
 const register = require('../controllres/registerController')
 const auth = require('../controllres/authController')
+const handler = require('../controllres/upload');
+
 // const verifyToken = require('../middleware/middleware');
+
+
 //router everything
 
 // member
@@ -24,9 +28,9 @@ router.post("/member/register", member.register); // สมัครสมาช
 router.post("/member/update/:id",  member.updateMember);
 router.get("/member/get/:id" ,  member.getMemberId);
 // employee
-router.get("/employee",  employee.getEmployee);
+router.get("/employee",  employee.getemployee);
 router.post("/employee/create", employee.addemployee);
-router.post("/employee/update/:id", employee.updateEmployee);
+router.post("/employee/update/:id", employee.updateemployee);
 router.delete("/employee/delete/:id", employee.deleteEmployee);
 router.get("/employee/get/:id" , employee.getEmployeeId);
 // food
@@ -57,16 +61,17 @@ router.get("/typeFood", typeFood.getTypeFood);
 router.get("/typeDrink", typeDrink.getTypeDrink);
 
 //  Order
-router.get("/order", order.getOrder);
-router.post("/order/create", order.addorder);
+router.get("/orderHistory", order.getOrderHistory);
+router.post("/order/create", order.createOrder);
+router.post("/order/update", order.updateOrder);
 
-//  Order food
-router.get("/orderFood", orderFood.getOrderFood);
-router.post("/orderFood/create", orderFood.getOrderFood);
+// //  Order food
+// router.get("/orderFood", orderFood.getOrderFood);
+// router.post("/orderFood/create", orderFood.getOrderFood);
 
-//  Order drink
-router.get("/orderDrink", orderDrink.getOrderDrink);
-router.post("/orderDrink/create", orderDrink.addorderdrink);
+// //  Order drink
+// router.get("/orderDrink", orderDrink.getOrderDrink);
+// router.post("/orderDrink/create", orderDrink.addorderdrink);
 
 // register
 router.post('/register', register.add_user);
@@ -74,4 +79,6 @@ router.post('/login', auth.loginUser);
 router.post('/login/employee', auth.loginEmployee);
 router.post('/logout', auth.logout);
 
-module.exports = router;
+// upload
+ router.post('/upload' , handler);
+  module.exports = router;

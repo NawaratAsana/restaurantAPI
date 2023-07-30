@@ -1,29 +1,45 @@
+const food = require('../model/food');
+const cloudinary = require("cloudinary").v2;
 
-const food = require('../model/food')
+cloudinary.config({
+  cloud_name: 'df8clipqz',
+  api_key: '194894554869875',
+  api_secret: 'onF0NwqgKYrmHOh6orIHCPspr3Y'
+});
+
 
 module.exports.addFood = async (req, res) => {
-
   try {
-    const { name, image, price, typeFood_id } = req.body;
+    const { name, image, price, typeFood_id } = req.body
 
     if (!(name && image && price && typeFood_id)) {
       res.status(400).send('All input is required');
     }
+    console.log("body", req.body)
 
-    const foodMenu = await food.create({
+    const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '',);
+
+    // Upload base64 image to Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`,{
+      resource_type: "auto",
+      folder: 'food'
+    });
+
+    const Food = await food.create({
       name,
-      image,
+      image: uploadedImage.secure_url, 
+      public_id: uploadedImage.public_id ,
       price,
       typeFood_id,
     });
 
-    res.status(201).json(foodMenu)
+    res.status(201).json(Food)
   }
   catch (err) {
     res.json({ message: err });
   }
-
 }
+
 
 module.exports.getFood = async (req, res) => {
   try {
@@ -34,20 +50,100 @@ module.exports.getFood = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
+// module.exports.updateFood = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//      const { name, image, price, typeFood_id } = req.body;
+
+//     if (!(name && price && typeFood_id)) {
+//       return res.status(400).send('All input is required');
+//     }
+
+  
+//     let updatedData = {
+//       name,
+//       price,
+//       typeFood_id
+//     };
+
+//     if (image) {
+//       const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+
+//       // Upload base64 image to Cloudinary
+//       const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+//         resource_type: 'auto',
+//         folder: 'food'
+//       });
+
+//       updatedData.image = uploadedImage.secure_url;
+//       updatedData.public_id = uploadedImage.public_id;
+//     } else {
+//       // Check if image should be removed
+//       if (req.body.removeImage === 'true') {
+//         // Remove image from Cloudinary
+//         if (req.body.public_id) {
+//           await cloudinary.uploader.destroy(req.body.public_id);
+//         }
+
+//         updatedData.image = undefined;
+//         updatedData.public_id = undefined;
+//       }
+//     }
+//     const options = { new: true };
+//     const result = await food.findByIdAndUpdate(
+//       id, updatedData, options
+//     )
+//     res.send(result)
+//   }
+//   catch (error) {
+//     res.status(400).json({ message: error.message })
+//   }
+// }
 module.exports.updateFood = async (req, res) => {
   try {
     const id = req.params.id;
-    const updatedData = req.body;
+    const { name, image, price, typeFood_id } = req.body;
+
+    if (!(name && price && typeFood_id)) {
+      return res.status(400).send('All input is required');
+    }
+
+    let updatedData = {
+      name,
+      price,
+      typeFood_id
+    };
+
+    if (image) {
+      // Check if the image URL is different from the existing one
+      if (image !== req.body.image) {
+        // Remove previous image if exists
+        if (req.body.public_id) {
+          await cloudinary.uploader.destroy(req.body.public_id);
+        }
+
+        const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+
+        // Upload base64 image to Cloudinary
+        const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+          resource_type: 'auto',
+          folder: 'food'
+        });
+
+        updatedData.image = uploadedImage.secure_url;
+        updatedData.public_id = uploadedImage.public_id;
+      }
+    }
+
     const options = { new: true };
-    const result = await food.findByIdAndUpdate(
-      id, updatedData, options
-    )
-    res.send(result)
-  }
-  catch (error) {
-    res.status(400).json({ message: error.message })
+    const result = await food.findByIdAndUpdate(id, updatedData, options);
+    res.send(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 }
+
 module.exports.deleteFood = async (req, res) => {
   console.log(req.params)
   let data = await food.deleteOne(req.params);

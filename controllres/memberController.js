@@ -1,28 +1,65 @@
 const member = require('../model/member');
 const { db } = require('../model/member')
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+    cloud_name: 'df8clipqz',
+    api_key: '194894554869875',
+    api_secret: 'onF0NwqgKYrmHOh6orIHCPspr3Y'
+});
 
 module.exports.register = async (req, res) => {
-    const NewMember = new member({
-        name: req.body.name,
-        lname: req.body.lname,
-        gender: req.body.gender,
-        // email: req.body.email,
-        phone: req.body.phone,
-        address: req.body.address,
-        // image: req.body.image,
-        username: req.body.username,
-        password: req.body.password,
-        role:req.body.role,
-    
- 
-    });
-   
+
     try {
-        const saveMember = await NewMember.save();
-        res.json(saveMember);
-    } catch (err) {
+        const { name, lname, gender, 
+
+            email, phone, address, username, password, birthday,
+
+             image } = req.body;
+
+        if (!(username && password && name && lname)) {
+            res.status(400).send("All input is required");
+        }
+        console.log("body", req.body)
+
+        encryptedPassword = await bcrypt.hash(password, 10);
+
+        const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '',);
+
+        // Upload base64 image to Cloudinary
+        const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+            resource_type: "auto",
+            folder: 'member'
+        });
+        const user = await member.create({
+            name,
+            lname,
+            gender,
+            birthday,
+            email,
+            phone,
+            address,
+            username,
+            password: encryptedPassword,
+            image: uploadedImage.secure_url,
+            public_id: uploadedImage.public_id,
+            role:"63f512a60e947c18f97769a0"
+
+        })
+        const token = jwt.sign(
+            { user_id: user._id, username },
+            process.env.TOKEN_KEY,
+            {
+                expiresIn: "2d"
+            }
+        )
+        user.token = token;
+        res.status(201).json(user);
+    }
+    catch (err) {
         res.json({ message: err });
     }
+
 }
 module.exports.getMember = async (req, res) => {
     try {
@@ -33,10 +70,40 @@ module.exports.getMember = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-module.exports.updateMember= async (req, res) => {
+module.exports.updateMember = async (req, res) => {
     try {
         const id = req.params.id;
-        const updatedData = req.body;
+        const { name, lname, gender, birthday,
+
+            email, phone, address, username, password,
+
+            role, image } = req.body;
+        let updatedData = {
+            name,
+            lname,
+            gender,
+            birthday,
+            email,
+            phone,
+            address,
+            username,
+            password,
+
+            role:"63f512a60e947c18f97769a0"
+        }
+        if (image) {
+            const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+
+            // Upload base64 image to Cloudinary
+            const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+                resource_type: 'auto',
+                folder: 'member'
+            });
+
+            updatedData.image = uploadedImage.secure_url;
+            updatedData.public_id = uploadedImage.public_id;
+        }
+
         const options = { new: true };
         const result = await member.findByIdAndUpdate(
             id, updatedData, options
@@ -47,17 +114,17 @@ module.exports.updateMember= async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-module.exports.deleteMember= async (req, res) => {
+module.exports.deleteMember = async (req, res) => {
     console.log(req.params)
     let data = await member.deleteOne(req.params);
     res.send(data);
 }
-module.exports.getMemberId=async(req,res)=>{
-    try{
-        const data = await member.find(req.params.id);
+module.exports.getMemberId = async (req, res) => {
+    try {
+        const data = await member.find({ _id: req.params.id });
         res.json(data)
     }
-    catch(error){
-        res.status(500).json({message: error.message})
+    catch (error) {
+        res.status(500).json({ message: error.message })
     }
 }

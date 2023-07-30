@@ -1,46 +1,53 @@
 const Employee = require('../model/employee')
-// const { db } = require('../model/employee')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+    cloud_name: 'df8clipqz',
+    api_key: '194894554869875',
+    api_secret: 'onF0NwqgKYrmHOh6orIHCPspr3Y'
+});
+
 module.exports.addemployee = async (req, res) => {
     try {
-        const {
-            employeeID,
-            name,
-            lname,
-            gender,
-            birthday,
-            age,
-            email,
-            phone,
-            address,
-            photo,
-            username,
-            password,
-            position_id,
-            role,
-            active,
-        } = req.body;
+        const { employeeID, name, lname, gender, birthday,
+
+            email, phone, address, username, password, position_id,
+
+            active, image } = req.body;
+
         if (!(username && password && name && lname)) {
             res.status(400).send("All input is required");
         }
+        console.log("body", req.body)
+
         encryptedPassword = await bcrypt.hash(password, 10);
+
+        const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '',);
+
+        // Upload base64 image to Cloudinary
+        const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+            resource_type: "auto",
+            folder: 'employee'
+        });
         const user = await Employee.create({
             employeeID,
             name,
             lname,
             gender,
             birthday,
-            age,
+            // age,
             email,
             phone,
             address,
-            photo,
             username,
             password: encryptedPassword,
             position_id,
-            role,
+            image: uploadedImage.secure_url,
+            public_id: uploadedImage.public_id,
             active,
+
         })
         const token = jwt.sign(
             { user_id: user._id, username },
@@ -51,39 +58,12 @@ module.exports.addemployee = async (req, res) => {
         )
         user.token = token;
         res.status(201).json(user);
-    } 
+    }
     catch (err) {
         res.json({ message: err });
     }
-
-
-
-    // ของเดิม
-    // const NewEmployee = new Employee({
-    //     employeeID: req.body.employeeID,
-    //     name: req.body.name,
-    //     lname: req.body.lname,
-    //     gender: req.body.gender,
-    //     birthday: req.body.birthday,
-    //     age: req.body.age,
-    //     email: req.body.email,
-    //     phone: req.body.phone,
-    //     address: req.body.address,
-    //     photo: req.body.photo,
-    //     username: req.body.username,
-    //     password:req.body.password,
-    //     position_id: req.body.position_id,
-    //     role:req.body.role,
-    //     active: req.body.active,
-    // });
-    // try {
-    //     const saveEmployee = await NewEmployee.save();
-    //     res.json(saveEmployee);
-    // } catch (err) {
-    //     res.json({ message: err });
-    // }
 }
-module.exports.getEmployee = async (req, res) => {
+module.exports.getemployee = async (req, res) => {
     try {
         const employee = await Employee.find();
         res.json(employee);
@@ -92,10 +72,42 @@ module.exports.getEmployee = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-module.exports.updateEmployee = async (req, res) => {
+module.exports.updateemployee = async (req, res) => {
     try {
-        const id = req.params.id;
-        const updatedData = req.body;
+        const id = req.params.id; 
+        const { employeeID, name, lname, gender, birthday,
+
+            email, phone, address, username,  position_id,
+password,
+            active, image } = req.body;
+       
+        let updatedData = {
+            name,
+            employeeID,
+            lname,
+            gender,
+            birthday,
+            email,
+            phone,
+            address,
+            username,
+            password,
+            position_id,
+            active
+        }
+        if (image) {
+            const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+
+            // Upload base64 image to Cloudinary
+            const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
+                resource_type: 'auto',
+                folder: 'employee'
+            });
+
+            updatedData.image = uploadedImage.secure_url;
+            updatedData.public_id = uploadedImage.public_id;
+        }
+
         const options = { new: true };
         const result = await Employee.findByIdAndUpdate(
             id, updatedData, options

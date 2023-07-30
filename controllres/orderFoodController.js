@@ -2,19 +2,16 @@ const orderFood = require('../model/orderFood')
 const { db } = require('../model/orderFood')
 
 module.exports.addorderfood = async (req, res) => {
-    const NewOrderFood = new orderFood({
-        quantity: req.body.quantity,
-        orderdate: req.body.orderdate,
-        order_id: req.body.order_id,
 
-       
-    });
     try {
-        const saveOrderFood = await NewOrderFood.save();
-        res.json(saveOrderFood);
+        const { quantity, order_id, food_id_id} = req.body
+
+        const OrderFood = await orderFood.create({ quantity, order_id, food_id_id} );
+        res.json(OrderFood);
     } catch (err) {
         res.json({ message: err });
     }
+  
 }
 module.exports.getOrderFood = async (req, res) => {
     try {
