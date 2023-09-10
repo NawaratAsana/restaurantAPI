@@ -10,8 +10,7 @@ const typeFood = require('../controllres/tFoodController')
 const typeDrink = require('../controllres/tDrinkController')
 const status = require('../controllres/statusController')
 const order = require('../controllres/orderController')
-const orderFood = require('../controllres/orderFoodController')
-const orderDrink = require('../controllres/orderDrinkController')
+const payment = require('../controllres/payController')
 const register = require('../controllres/registerController')
 const auth = require('../controllres/authController')
 const handler = require('../controllres/upload');
@@ -61,24 +60,22 @@ router.get("/typeFood", typeFood.getTypeFood);
 router.get("/typeDrink", typeDrink.getTypeDrink);
 
 //  Order
-router.get("/orderHistory", order.getOrderHistory);
+router.get("/order", order.getAllOrders);
 router.post("/order/create", order.createOrder);
-router.post("/order/update", order.updateOrder);
+router.post("/order/update/:id", order.updateOrder);
+router.get("/order/searchOrdersByMemberId/:id" , order.searchOrdersByMemberId);
+router.get("/order/searchOrdersByEmployeeId/:id" , order.searchOrdersByEmployeeId);
 
-// //  Order food
-// router.get("/orderFood", orderFood.getOrderFood);
-// router.post("/orderFood/create", orderFood.getOrderFood);
-
-// //  Order drink
-// router.get("/orderDrink", orderDrink.getOrderDrink);
-// router.post("/orderDrink/create", orderDrink.addorderdrink);
-
+// Payment
+router.post("/payment/create",payment.createPayment);
+router.post("/payment/update",payment.updatePayment);
+router.get("/payment",payment.getAllPayments);
+router.get("/payment/get/:id",payment.getPaymentById);
 // register
 router.post('/register', register.add_user);
 router.post('/login', auth.loginUser);
 router.post('/login/employee', auth.loginEmployee);
 router.post('/logout', auth.logout);
 
-// upload
- router.post('/upload' , handler);
+
   module.exports = router;

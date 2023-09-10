@@ -11,11 +11,11 @@ cloudinary.config({
 module.exports.register = async (req, res) => {
 
     try {
-        const { name, lname, gender, 
+        const { name, lname, gender,
 
             email, phone, address, username, password, birthday,
 
-             image } = req.body;
+            image } = req.body;
 
         if (!(username && password && name && lname)) {
             res.status(400).send("All input is required");
@@ -43,7 +43,7 @@ module.exports.register = async (req, res) => {
             password: encryptedPassword,
             image: uploadedImage.secure_url,
             public_id: uploadedImage.public_id,
-            role:"63f512a60e947c18f97769a0"
+            role: "63f512a60e947c18f97769a0"
 
         })
         const token = jwt.sign(
@@ -75,9 +75,7 @@ module.exports.updateMember = async (req, res) => {
         const id = req.params.id;
         const { name, lname, gender, birthday,
 
-            email, phone, address, username, password,
-
-            role, image } = req.body;
+            email, phone, address, username, password,  image } = req.body;
         let updatedData = {
             name,
             lname,
@@ -88,8 +86,7 @@ module.exports.updateMember = async (req, res) => {
             address,
             username,
             password,
-
-            role:"63f512a60e947c18f97769a0"
+            role: "63f512a60e947c18f97769a0"
         }
         if (image) {
             const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
@@ -120,7 +117,9 @@ module.exports.deleteMember = async (req, res) => {
     res.send(data);
 }
 module.exports.getMemberId = async (req, res) => {
+
     try {
+          
         const data = await member.find({ _id: req.params.id });
         res.json(data)
     }

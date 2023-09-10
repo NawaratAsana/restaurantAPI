@@ -15,7 +15,7 @@ module.exports.addFood = async (req, res) => {
     if (!(name && image && price && typeFood_id)) {
       res.status(400).send('All input is required');
     }
-    console.log("body", req.body)
+    
 
     const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '',);
 
@@ -51,55 +51,6 @@ module.exports.getFood = async (req, res) => {
   }
 }
 
-// module.exports.updateFood = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//      const { name, image, price, typeFood_id } = req.body;
-
-//     if (!(name && price && typeFood_id)) {
-//       return res.status(400).send('All input is required');
-//     }
-
-  
-//     let updatedData = {
-//       name,
-//       price,
-//       typeFood_id
-//     };
-
-//     if (image) {
-//       const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
-
-//       // Upload base64 image to Cloudinary
-//       const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
-//         resource_type: 'auto',
-//         folder: 'food'
-//       });
-
-//       updatedData.image = uploadedImage.secure_url;
-//       updatedData.public_id = uploadedImage.public_id;
-//     } else {
-//       // Check if image should be removed
-//       if (req.body.removeImage === 'true') {
-//         // Remove image from Cloudinary
-//         if (req.body.public_id) {
-//           await cloudinary.uploader.destroy(req.body.public_id);
-//         }
-
-//         updatedData.image = undefined;
-//         updatedData.public_id = undefined;
-//       }
-//     }
-//     const options = { new: true };
-//     const result = await food.findByIdAndUpdate(
-//       id, updatedData, options
-//     )
-//     res.send(result)
-//   }
-//   catch (error) {
-//     res.status(400).json({ message: error.message })
-//   }
-// }
 module.exports.updateFood = async (req, res) => {
   try {
     const id = req.params.id;
@@ -116,16 +67,13 @@ module.exports.updateFood = async (req, res) => {
     };
 
     if (image) {
-      // Check if the image URL is different from the existing one
+      
       if (image !== req.body.image) {
-        // Remove previous image if exists
         if (req.body.public_id) {
           await cloudinary.uploader.destroy(req.body.public_id);
         }
-
         const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
 
-        // Upload base64 image to Cloudinary
         const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
           resource_type: 'auto',
           folder: 'food'
