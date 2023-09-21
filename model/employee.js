@@ -7,7 +7,6 @@ const employeedata = new mongoose.Schema({
     lname: { required: true, type: String },
     gender: { required: true, type: String },
     birthday: { required: true, type: Date},
-
     email: { required: true, type: String },
     phone: { type: String },
     address: { required: true, type: String },

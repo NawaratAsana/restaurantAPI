@@ -8,7 +8,7 @@ const food = require('../controllres/foodController')
 const drink = require('../controllres/drinkController')
 const typeFood = require('../controllres/tFoodController')
 const typeDrink = require('../controllres/tDrinkController')
-const status = require('../controllres/statusController')
+
 const order = require('../controllres/orderController')
 const payment = require('../controllres/payController')
 const register = require('../controllres/registerController')
@@ -49,9 +49,6 @@ router.delete("/drink/delete/:id", drink.deleteDrink);
 // position
 router.get("/position", position.getPosition);
 router.post("/position/create", position.addPosition);
-
-// status
-router.get("/status", status.getstatus1);
 
 // type Food
 router.get("/typeFood", typeFood.getTypeFood);

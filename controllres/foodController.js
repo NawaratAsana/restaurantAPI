@@ -68,10 +68,7 @@ module.exports.updateFood = async (req, res) => {
 
     if (image) {
       
-      if (image !== req.body.image) {
-        if (req.body.public_id) {
-          await cloudinary.uploader.destroy(req.body.public_id);
-        }
+      
         const base64Image = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
 
         const uploadedImage = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Image}`, {
@@ -81,9 +78,19 @@ module.exports.updateFood = async (req, res) => {
 
         updatedData.image = uploadedImage.secure_url;
         updatedData.public_id = uploadedImage.public_id;
+      
+    }else {
+      // Check if image should be removed
+      if (req.body.removeImage === 'true') {
+        // Remove image from Cloudinary
+        if (req.body.public_id) {
+          await cloudinary.uploader.destroy(req.body.public_id);
+        }
+
+        updatedData.image = undefined;
+        updatedData.public_id = undefined;
       }
     }
-
     const options = { new: true };
     const result = await food.findByIdAndUpdate(id, updatedData, options);
     res.send(result);

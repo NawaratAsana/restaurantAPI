@@ -7,7 +7,6 @@ const PaymentSchema = new mongoose.Schema({
     order_id: { required: true, type: Schema.Types.ObjectId, Ref: 'Order' },
     payment_status: { type: String, enum: ['รอการชำระเงิน', 'รอการยืนยัน','ชำระเงินแล้ว',"ยกเลิก"], default: 'รอการชำระเงิน', required: true },
     public_id: { type: String },
-  
 }, {
 
     timestamps: true,
