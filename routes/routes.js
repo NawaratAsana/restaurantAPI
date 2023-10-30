@@ -74,5 +74,4 @@ router.post('/login', auth.loginUser);
 router.post('/login/employee', auth.loginEmployee);
 router.post('/logout', auth.logout);
 
-
   module.exports = router;

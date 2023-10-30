@@ -50,6 +50,7 @@ module.exports.createOrder = async (req, res) => {
       status,
       delivery_type,
       delivery_location,
+
     });
     // Create a new payment entry
     const newPayment = new Payment({
@@ -71,7 +72,7 @@ module.exports.createOrder = async (req, res) => {
         quantity: food.quantity,
         order_id: newOrder._id,
         food_id: food.food_id,
-        
+        detail:food.detail,
       };
       foodItems.push(foodItem);
     }
@@ -82,6 +83,8 @@ module.exports.createOrder = async (req, res) => {
         quantity: drink.quantity,
         order_id: newOrder._id,
         drink_id: drink.drink_id,
+        detail:drink.detail,
+
       };
       drinkItems.push(drinkItem);
     }
